@@ -1,186 +1,57 @@
+<!doctype html>
+<html>
+
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-    <meta name="theme-color" content="#34A249" />
+    <meta name="theme-color" content="#333" />
+    <!-- Primary Meta Tags -->
+    <title>Snake Game —— Online Classic Nokia Snake Game</title>
+    <meta name="title" content="Snake Game —— Online Classic Nokia Snake Game">
+    <meta name="description" content="Snake Game is a new webgame based on the classic arcade snake game by nokia, It's responsive, can be played on desktop and smartphones written in JavaScript and html5">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://io.swana.me/snake/">
+    <meta property="og:title" content="Snake Game —— Online Classic Nokia Snake Game">
+    <meta property="og:description" content="Snake Game is a new webgame based on the classic arcade snake game by nokia, It's responsive, can be played on desktop and smartphones written in JavaScript and html5">
+    <meta property="og:image" content="https://io.swana.me/snake/mockup.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://io.swana.me/snake/">
+    <meta property="twitter:title" content="Snake Game —— Online Classic Nokia Snake Game">
+    <meta property="twitter:description" content="Snake Game is a new webgame based on the classic arcade snake game by nokia, It's responsive, can be played on desktop and smartphones written in JavaScript and html5">
+    <meta property="twitter:image" content="https://io.swana.me/snake/mockup.png">
+    
+    <style type="text/css">
+        #container {
+            width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        #gameViewport {
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0)
+        }
+
+        html,
+        body,
+        canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: auto;
+            overscroll-behavior: contain
+        }
+    </style>
 </head>
-<canvas id="canvas"></canvas>
-<style type="text/css">
-    #canvas {
-        width: 100%;
-        height: 100%;
-        margin: 0 auto;
-        padding: 0;
-        -webkit-transform: translate3d(0, 0, 0);
-        transform: translate3d(0, 0, 0);
-        position: absolute;
-        left: 0;
-        top: 0;
-        margin: auto;
-        overscroll-behavior: contain
-    }
-</style>
 
-<script type="text/javascript">
-    "use strict";
-    let game, snake, apple;
+<body scroll="no" style="margin: 0">
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript" src="./snake.js"></script>
+</body>
 
-        apple = function(params) {
-            this.x = params.x
-            this.y = params.y
-            this.color = params.color;
-            this.radius = params.radius
-            this.update = () => {
-
-            }
-            this.render = () => {
-                context.save()
-                context.beginPath()
-                context.fillStyle = this.color;
-                context.arc(this.x, this.y, this.radius , 0, Math.PI * 2);
-                context.fill()
-                context.closePath()
-                context.restore()
-            }
-        }
-
-    apple.prototype.collides = function (c) {
-	    var a = this.x - c.x;
-	    var b = this.y - c.y;
-	    var d = (a * a) + (b * b);
-	    var radii = this.radius + c.radius;
-	    return radii * radii >= d;
-    }
-
-    snake = function(params) {
-        this.x = params.x
-        this.y = params.y
-        this.radius = 10
-        
-        this.length = 100
-        this.trail = []
-        this.direction = [0, 1]
-        this.color = "green"
-
-        this.update = () => {
-            let speed = this.length / 10;
-            this.x += this.radius * this.direction[0] * speed / 60
-            this.y += this.radius * this.direction[1] * speed / 60
-            this.trail.unshift({
-                x: this.x,
-                y: this.y,
-                radius: this.radius
-            })
-
-            if (apple.collides(this.trail[0])) {
-                apple.reset()
-                this.length += 1;
-            }
-
-            if (this.y > canvas.height)
-                this.y = -this.radius
-
-            if ((this.y < -this.radius))
-                this.y = canvas.height - this.radius
-
-            if (this.x > canvas.width)
-                this.x = -this.radius
-
-            if (this.x < -this.radius)
-                this.x = canvas.width - this.radius
-        }
-
-        this.render = () => {
-            this.trail.splice(this.length, 100)
-            this.trail.forEach((cell, index) => {
-                let opacity = ((index / this.length) - 1) * -1
-                context.save()
-                context.translate(cell.x, cell.y);
-                context.rotate((45) * (Math.PI / 180));
-                context.translate(-cell.x, -cell.y);
-                context.beginPath()
-                context.fillStyle = 'rgba(81, 81, 274, ' + opacity + ')'; // og rbga todo
-                context.arc(cell.x, cell.y, ((cell.radius + cell.radius) / 2), 0, Math.PI * 2);
-                context.fill()
-                context.closePath()
-                context.restore()
-            });
-        }
-    }
-
-    game = function(params) {
-        this.score = 0;
-        this.objects = [];
-        context = params.context;
-
-        this.loop = () => {
-            window.requestAnimationFrame(this.loop)
-            this.update()
-            this.render()
-        }
-
-        this.update = () => {
-            this.objects.forEach((object) => {
-                object.update()
-            })
-        }
-
-        this.render = () => {
-            context.fillStyle = "#34A249"
-            context.fillRect(0, 0,
-                canvas.width,
-                canvas.height
-            );
-
-            this.objects.forEach((object) => {
-                object.render()
-            })
-
-            // draw hub
-            context.font = '1em digit'
-            context.fillStyle = '#fff'
-            context.fillText('score: ' + this.score, (16), (50))
-        }
-    }
-
-    let context = canvas.getContext("2d")
-    let snakes = new game({
-        context
-    })
-
-    canvas.style.width = canvas.width = window.innerWidth
-    canvas.style.height = canvas.height = window.innerHeight
-    canvas.addEventListener("click", function(point) {
-        let snake = snakes.objects[0]
-        let i =  {x: point.pageX, y: point.pageY},
-		    ii = {x: snake.x, y: snake.y};
-        let dy = ii.y - i.y,
-	        dx = ii.x - i.x;
-        
-        if(dy > 0) snake.direction[1] = -1
-        if(dy < 0) snake.direction[1] = 1
-        
-        if(dx > 0) snake.direction[0] = -1
-        if(dx < 0) snake.direction[0] = 1
-    });
-
-    apple = new apple({
-        color: "#ff0000",
-        radius: 15,
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height
-    })
-
-    apple.reset = function() {
-        snakes.score++
-        this.x = Math.random() * canvas.width
-        this.y = Math.random() * canvas.height
-    }
-
-    snakes.objects.push(new snake({
-        x: 50,
-        y: 50
-    }))
-
-
-    snakes.objects.push(apple)
-    snakes.loop();
-</script>
+</html>
